@@ -32,7 +32,7 @@ class Chef
       # Set the resource name and provider
       @resource_name = :zap_directory
       @provider = Provider::ZapDirectory
-      @klass = [Chef::Resource::File, Chef::Resource::Template, Chef::Resource::Link]
+      @klass = [:file, :template, :link]
       @recursive = false
       @path = ''
     end
@@ -49,7 +49,8 @@ class Chef
   # provider
   class Provider::ZapDirectory < Provider::Zap
     def select(r)
-      r.path if @klass.include?(r.class)
+      klass_map = @klass.map { |k| resource_to_class(k) }
+      r.path if klass_map.include?(r.class)
     end
 
     def collect
@@ -83,7 +84,7 @@ class Chef
     end
 
     def zap(name, act)
-      klass = Chef::Resource::Link if ::File.symlink?(name)
+      klass = :link if ::File.symlink?(name)
       super(name, act, klass)
     end
   end

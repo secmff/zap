@@ -35,7 +35,7 @@ class Chef
       @resource_name = :zap_users
       @supports << :filter
       @provider = Provider::ZapUsers
-      @klass = [Chef::Resource::User]
+      @klass = [:user]
     end
   end
 

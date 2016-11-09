@@ -33,7 +33,7 @@ class Chef
       @resource_name = :zap_apt_repos
       @provider = Provider::ZapAptRepos
       @immediately = true
-      @klass = [Chef::Resource::AptRepository] rescue []
+      @klass = [:apt_repository] rescue []
       Chef::Log.warn 'You are trying to zap a apt repository, but the apt'\
                      ' LWRPs are not loaded! Did you forgot to depend on the'\
                      ' apt cookbook somewhere?' if @klass.empty?

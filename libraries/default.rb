@@ -121,7 +121,8 @@ class Chef
     end
 
     def select(r)
-      r.name if @klass.include?(r.class)
+      klass_map = @klass.map { |k| resource_to_class(k) }
+      r.name if klass_map.include?(r.class)
     end
 
     # rubocop:disable MethodLength
@@ -158,11 +159,24 @@ class Chef
     def zap(name, act, klass = nil)
       klass = @klass.first if klass.nil?
 
-      r = klass.new(name, @run_context)
+      r = build_resource(klass, name) do
+        action act
+      end
       r.cookbook_name = @new_resource.cookbook_name
       r.recipe_name = @new_resource.recipe_name
-      r.action(act)
       r
+    end
+
+    private
+
+    def resource_to_class(short_name)
+      if Gem::Version.new(Chef::VERSION) >= Gem::Version.new('12.0')
+        Chef::ResourceResolver.resolve(short_name, node: @run_context.node)
+      else
+        Chef::Resource.platform_map.get(short_name,
+                                        platform: @run_context.node.platform,
+                                        version:  @run_context.node.platform_version)
+      end
     end
   end
 end
